@@ -1,0 +1,23 @@
+{
+  "name": "avro-with-node",
+  "version": "1.0.0",
+  "description": "This is a sample project to read and write .avro files including mongoose.",
+  "main": "index.js",
+  "dependencies": {
+    "avsc": "^5.5.3",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  },
+  "scripts": {
+    "start": "node index"
+  },
+  "keywords": [
+    "avro",
+    "azure",
+    "blob",
+    "big",
+    "data"
+  ],
+  "author": "Md. Shakil Mahmud Shahan",
+  "license": "ISC"
+}
