@@ -5,7 +5,7 @@ var path = require('path');
 // ##################################################################
 // =================== Input File Location/Path Here ================
 
-const filePath = '<Input your File Path>';
+const filePath = '../../practice/avro-csv/tmp/2021-01-27T00%3A00%3A35.133Z.avro';
 
 // Example
 // const filePath = '/home/root/collection/file.avro';
@@ -55,6 +55,11 @@ const decodeAvro = () => {
       try {
         const type = avro.Type.forSchema(sampleSenscomAzureSchema);
         const val = type.fromBuffer(data);
+        const dir = './decoded';
+        if (!fs.existsSync(dir)) {
+          console.log('hello');
+          fs.mkdirSync(dir);
+        }
         const decodedFileName = 'decoded/' + path.basename(filePath).split('.').slice(0, -1).join('.') + '.json';
         fs.writeFile(decodedFileName, val, (err) => {
           if (err) {
