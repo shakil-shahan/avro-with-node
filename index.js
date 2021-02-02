@@ -1,29 +1,21 @@
 const express = require('express');
-const app = express();
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const avro = require('avsc');
+var multer = require('multer');
 var fs = require('fs');
+var path = require('path');
+
+const app = express();
+var upload = multer();
 
 require('dotenv/config');
 
+// middleware
 // Use bodyparser to collect json object
 app.use(bodyParser.json());
 
-// connect to db
-mongoose.connect(
-  process.env.DB_URL,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  () => {
-    console.log('DB connected');
-  }
-);
-
 // AVSC Schema
-const type = avro.Type.forSchema({
+const sampleSenscomAzureSchema = {
   type: 'array',
   items: {
     type: 'record',
@@ -53,60 +45,32 @@ const type = avro.Type.forSchema({
       { name: 'createdAt', type: { type: 'string', logicalType: 'date' } },
     ],
   },
-});
+};
 
 // routes
-app.get('/', (req, res, next) => {
-  try {
-    mongoose.connection.db.collection('sensor_logs', async (err, collection) => {
-      let data = await collection
-        .find(
-          {
-            gateway_id: '0xC4F3125D5A54',
-          },
-          { limit: 10 }
-        )
-        .toArray();
-      console.log('🚀 ~ file: index.js ~ line 30 ~ mongoose.connection.db.collection ~ data', data);
-
-      const buf = type.toBuffer(data); // Encoded buffer.
-      const val = type.fromBuffer(buf);
-
-      console.log('deserialized object: ', JSON.stringify(val, null, 4)); // pretty print deserialized result
-
-      const full_filename = './tmp/avro_buf.avro';
-      fs.writeFile(full_filename, buf, (err) => {
-        if (err) {
-          return console.log(err);
-        }
-
-        console.log("The file was saved to '" + full_filename + "'");
-      });
-
-      res.send('Success');
-    });
-  } catch (err) {
-    res.send(err);
-  }
-});
-
-app.get('/download', (req, res, next) => {
-  fs.readFile('tmp/2021-01-27T00%3A00%3A35.133Z.avro', (err, data) => {
-    if (err) {
-      return console.log('🚀 ~ file: index.js ~ line 83 ~ fs.readFile ~ err', err);
-    }
-    console.log('🚀 ~ file: index.js ~ line 91 ~ fs.readFile ~ data', data);
-    const val = type.fromBuffer(data);
-    console.log('🚀 ~ file: index.js ~ line 101 ~ fs.readFile ~ val', val);
-    const full_filename = './tmp/2021-01-27.json';
-    fs.writeFile(full_filename, val, (err) => {
-      if (err) {
-        return console.log(err);
+app.post('/', upload.single('avro'), (req, res) => {
+  if (!req.file) {
+    return res.send('You must have select a file.');
+  } else {
+    if (req.file.mimetype !== 'application/octet-stream' && path.extname(req.file.originalname) !== '.avro') {
+      return res.send('You must have select an .avro file.');
+    } else {
+      try {
+        const type = avro.Type.forSchema(sampleSenscomAzureSchema);
+        const val = type.fromBuffer(req.file.buffer);
+        const decodedFileName = 'decoded/' + req.file.originalname.split('.').slice(0, -1).join('.') + '.json';
+        fs.writeFile(decodedFileName, val, (err) => {
+          if (err) {
+            return res.send({ message: 'Error to save data in a file.', data: val });
+          }
+          const savedFileLocation = __dirname + '/' + decodedFileName;
+          return res.send({ message: `Decoded file path: ${savedFileLocation}.`, data: val });
+        });
+      } catch {
+        return res.send('Schema mismatched. Try with senscom azure .avro file');
       }
-      console.log("The file was saved to '" + full_filename + "'");
-    });
-    res.send('Success');
-  });
+    }
+  }
 });
 
 // Listening to the server
