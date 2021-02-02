@@ -5,7 +5,7 @@ var path = require('path');
 // ##################################################################
 // =================== Input File Location/Path Here ================
 
-const filePath = '../../practice/avro-csv/tmp/2021-01-27T00%3A00%3A35.133Z.avro';
+const filePath = '<Your_Avro_File_Path>';
 
 // Example
 // const filePath = '/home/root/collection/file.avro';

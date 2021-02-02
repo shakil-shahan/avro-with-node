@@ -2,7 +2,7 @@
 
 ## Requirements
 
-To run the project, you have to be installed Node and npm installed in your environement.
+To run the project, Node.js and npm has to be installed.
 
 ### Install dependencies
 
