@@ -5,7 +5,7 @@ var path = require('path');
 // ##################################################################
 // =================== Input File Location/Path Here ================
 
-const filePath = '<Your_Avro_File_Path>';
+const filePath = './../../Downloads/2021-02-03T00%3A00%3A33.600Z.avro';
 
 // Example
 // const filePath = '/home/root/collection/file.avro';
@@ -66,7 +66,7 @@ const decodeAvro = () => {
             console.error('Error =>', err);
           }
           const savedFileLocation = __dirname + '/' + decodedFileName;
-          console.log({ data: val, message: `Decoded file path: ${savedFileLocation}` });
+          console.log({ message: 'File decoded successfully.', DecodedFilePath: savedFileLocation });
         });
       } catch (err) {
         console.error('Error =>', err);
